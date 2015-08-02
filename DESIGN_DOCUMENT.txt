@@ -1,1 +1,115 @@
-DESIGN DOCUMENT
+SOFTWARE DESIGN DOCUMENT
+
+ARCHITECTURE
+
+{} = conceptual object or namespace
+* = user interface dialogue or interaction options
+> = procedural step
+
+1.0 {GameStates}
+
+{Introduction}
+	Behaviour:
+	* Select New Game: set the game state to {CampaignSelect}
+	* Select Load Game: set the game state to {LoadGame}
+	* Select Exit: exit the game, close browser tab?
+	
+{CampaignSelect}
+	Behaviour:
+	* Select Campaign: 
+		> Load first level and update {APILevelData}
+		* Continue: Set game state to {HeroSelect}
+	* Back: set game state to {Introduction}
+	
+{HeroSelect}
+	Behaviour:
+	* Select Heroes for use
+		* Continue: set game state to {Store}
+	* Back: set game state to {CampaignSelect}
+
+{LoadGame}
+	Behaviour:
+	* Select saved game:
+		> Load {APIGameState}
+		* Continue: set game state to {GameMaster}
+	
+{LevelSelect}
+// This might not be necessary, at least for prototyping, if we assume that levels can only
+// be undertaken sequentially within a campaign.
+
+{LevelIntroduction}
+
+{Store}
+	Behaviour:
+	* Continue: Set game state to {LevelIntroduction}
+	* Back: set game state to {Store}
+
+{Editor}
+// Strictly speaking the editor is ancillary to an API but we can still think about how this 
+// may or may not operate.
+	Behaviour:
+	* New: create a new {APILevelData}
+	* Load: load a {APILevelData}
+	* Save: save a {APILevelData}
+	* Exit: set game state to {Introduction}
+
+{GameMaster}
+	Behaviour:
+	> Update()
+	* Save Game: save the {APILevelData}
+	* Exit Game: set game state to {Introduction}
+	> Render()
+
+2.0	Game Data
+
+Non API related
+
+OBJECT Game
+* This object controls the current {GameState}.
+OBJECT Introduction
+OBJECT CampaignSelect
+OBJECT HeroSelect
+OBJECT LoadGame
+OBJECT LevelSelect
+OBJECT Store // This might actually sit better in the API
+OBJECT Editor
+
+API related
+
+OBJECT APITile
+* This is the basic 1x1 floor element
+var APITile = function()
+{
+	this.wall[4]	// bitmap mask for wall location
+	this.walkable
+}
+
+OBJECT APIMap
+var APIMap = function(print)
+{
+	this.floor
+	this.objects
+	this.triggers
+	this.effects
+	this.print
+	
+}
+
+OBJECT APILevel
+* This API should contain all data related to the current game state.  E.g. hero positions,
+* monster positions, victory conditions(?), creature hit points, object locations, map data, etc.
+function APILevelData (is_victory) {
+	this.Map
+	this.players
+	this.monsters
+	this.IsVictory = is_victory
+	
+	this.turn
+}
+
+OBJECT APIGameMaster
+* This API actually runs the game itself.
+
+
+	
+};
